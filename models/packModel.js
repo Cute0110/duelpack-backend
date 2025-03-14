@@ -1,15 +1,11 @@
 module.exports = (sequelize, Sequelize) => {
-    const Provider = sequelize.define(
-        "provider",
+    const Pack = sequelize.define(
+        "pack",
         {
             id: {
                 type: Sequelize.INTEGER,
                 primaryKey: true,
                 autoIncrement: true,
-            },
-            providerCode: {
-                type: Sequelize.STRING,
-                defaultValue: "",
             },
             name: {
                 type: Sequelize.STRING,
@@ -18,6 +14,10 @@ module.exports = (sequelize, Sequelize) => {
             imageUrl: {
                 type: Sequelize.STRING,
                 defaultValue: "",
+            },
+            price: {
+                type: Sequelize.DOUBLE(20, 5),
+                defaultValue: 0,
             },
             order: {
                 type: Sequelize.INTEGER,
@@ -33,5 +33,5 @@ module.exports = (sequelize, Sequelize) => {
         }
     );
 
-    return Provider;
+    return Pack;
 };

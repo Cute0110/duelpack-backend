@@ -19,16 +19,10 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 // model
-db.influencer = require("./influencerModel")(sequelize, Sequelize);
 db.user = require("./userModel")(sequelize, Sequelize);
-// db.userBalanceHistory = require("./userBalanceHistoryModel")(sequelize, Sequelize);
-// db.userGameHistory = require("./userGameHistoryModel")(sequelize, Sequelize);
-// db.userBetInfo = require("./userBetInfoModel")(sequelize, Sequelize);
-// db.game = require("./gameModel")(sequelize, Sequelize);
-// db.vipLevel = require("./vipLevel")(sequelize, Sequelize);
-// db.chat_history = require("./chatHistoryModel.js")(sequelize, Sequelize);
-// db.provider = require("./providerModel.js")(sequelize, Sequelize);
-// db.vipStatus = require("./vipStatus")(sequelize, Sequelize);
+db.pack = require("./packModel")(sequelize, Sequelize);
+db.packItem = require("./packItemModel")(sequelize, Sequelize);
+db.forge = require("./forgeModel")(sequelize, Sequelize);
 
 db.sync = async () => {
     await db.sequelize.sync();

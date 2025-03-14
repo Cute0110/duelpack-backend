@@ -7,11 +7,11 @@ module.exports = (sequelize, Sequelize) => {
                 primaryKey: true,
                 autoIncrement: true,
             },
-            influencerId: {
-                type: Sequelize.INTEGER,
-                defaultValue: 0,
-            },
             userCode: {
+                type: Sequelize.STRING,
+                defaultValue: "",
+            },
+            fullName: {
                 type: Sequelize.STRING,
                 defaultValue: "",
             },
@@ -31,7 +31,7 @@ module.exports = (sequelize, Sequelize) => {
                 type: Sequelize.STRING,
                 defaultValue: "",
             },
-            location: {
+            residentialAddress: {
                 type: Sequelize.STRING,
                 defaultValue: "",
             },
@@ -47,10 +47,6 @@ module.exports = (sequelize, Sequelize) => {
                 type: Sequelize.DOUBLE(20, 5),
                 defaultValue: 0,
             },
-            lockedBalance: {
-                type: Sequelize.DOUBLE(20, 5),
-                defaultValue: 0,
-            },
             status: {
                 type: Sequelize.BOOLEAN,
                 defaultValue: true,
@@ -61,9 +57,9 @@ module.exports = (sequelize, Sequelize) => {
         }
     );
     
-    User.associate = (db) => {
-        User.belongsTo(db.influencer, { foreignKey: "influencerId", as: "influencer" });
-    };
+    // User.associate = (db) => {
+    //     User.belongsTo(db.influencer, { foreignKey: "influencerId", as: "influencer" });
+    // };
 
     return User;
 };

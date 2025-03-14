@@ -1,35 +1,35 @@
 module.exports = (sequelize, Sequelize) => {
-    const Influencer = sequelize.define(
-        "influencer",
+    const Forge = sequelize.define(
+        "forge",
         {
             id: {
                 type: Sequelize.INTEGER,
                 primaryKey: true,
                 autoIncrement: true,
             },
+            userId: {
+                type: Sequelize.INTEGER,
+                defaultValue: 0,
+            },
             name: {
                 type: Sequelize.STRING,
                 defaultValue: "",
             },
-            promoCode: {
+            imageUrl: {
                 type: Sequelize.STRING,
                 defaultValue: "",
             },
-            usersCount: {
-                type: Sequelize.INTEGER,
-                defaultValue: 0,
-            },
-            usersTotalBet: {
+            price: {
                 type: Sequelize.DOUBLE(20, 5),
                 defaultValue: 0,
             },
-            profit: {
+            multi: {
                 type: Sequelize.DOUBLE(20, 5),
                 defaultValue: 0,
             },
-            percent: {
+            order: {
                 type: Sequelize.INTEGER,
-                defaultValue: 50,
+                defaultValue: 1,
             },
             status: {
                 type: Sequelize.BOOLEAN,
@@ -41,5 +41,8 @@ module.exports = (sequelize, Sequelize) => {
         }
     );
 
-    return Influencer;
+    Forge.associate = (db) => {
+        Forge.belongsTo(db.user, { foreignKey: "userId", as: "user" });
+    };
+    return Forge;
 };

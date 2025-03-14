@@ -11,12 +11,11 @@ const app = express();
 const server = http.createServer(app);
 const database = require("./models");
 const baseRouter = require("./router/baseRouter");
-const apiRouter = require("./router/apiRouter");
 const config = require("./config/main");
 
 // CORS configuration
 app.use(cors({
-    origin: "https://duelpack.com",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
@@ -66,7 +65,6 @@ initializeSocket(server);
 
 // Routes
 app.use("/api", baseRouter);
-app.use("/gold_api", apiRouter);
 
 // Start server using the HTTP server instance
 server.listen(config.port, () => {
