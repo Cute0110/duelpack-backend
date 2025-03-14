@@ -16,7 +16,7 @@ const config = require("./config/main");
 
 // CORS configuration
 app.use(cors({
-    origin: "https://wecazoo.com",
+    origin: "https://duelpack.com",
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
