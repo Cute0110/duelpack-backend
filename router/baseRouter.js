@@ -46,6 +46,7 @@ router.post("/change_password", authenticate, userController.changeUserPassword)
 
 //packs
 router.post("/pack_list", packController.getAllPacks);
+router.post("/items_list", packController.getItems);
 
 //forge
 router.post("/forge_list", forgeController.getAllForge);

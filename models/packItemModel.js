@@ -23,6 +23,14 @@ module.exports = (sequelize, Sequelize) => {
                 type: Sequelize.DOUBLE(20, 5),
                 defaultValue: 0,
             },
+            percent: {
+                type: Sequelize.DOUBLE(20, 5),
+                defaultValue: 0,
+            },
+            comment: {
+                type: Sequelize.STRING,
+                defaultValue: "",
+            },
             order: {
                 type: Sequelize.INTEGER,
                 defaultValue: 1,
