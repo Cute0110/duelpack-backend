@@ -45,9 +45,9 @@ router.post("/user_name_change", authenticate, userController.userNameChange);
 router.post("/change_password", authenticate, userController.changeUserPassword);
 
 //packs
-router.post("/pack_list", authenticate, packController.getAllPacks);
+router.post("/pack_list", packController.getAllPacks);
 
 //forge
-router.post("/forge_list", authenticate, forgeController.getAllForge);
+router.post("/forge_list", forgeController.getAllForge);
 
 module.exports = router;
