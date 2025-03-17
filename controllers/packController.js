@@ -49,7 +49,7 @@ exports.getAllPacks = async (req, res) => {
 
 exports.getItems = async (req, res) => {
     try {
-        const { start, length, search, order, dir } = dot(req.body);
+        const { start, length, search, order, dir, packID } = dot(req.body);
 
         console.log(start, length, search)
         let query = {};
@@ -61,6 +61,8 @@ exports.getItems = async (req, res) => {
                 ],
             };
         }
+
+        query = {...query, packId : packID};
 
         const data = await PackItem.findAndCountAll({
             where: query,
