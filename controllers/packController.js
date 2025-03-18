@@ -68,7 +68,7 @@ exports.getPackItems = async (req, res) => {
             where: query,
             offset: Number(start),
             limit: length == 0 ? null : Number(length),
-            order: [[{ model: db.item, as: 'item' }, order, dir]], // Ordering by item.id
+            order: [[order, dir]], // Ordering by item.id
             include: [
                 {
                     model: db.pack,
@@ -82,6 +82,8 @@ exports.getPackItems = async (req, res) => {
                 },
             ],
         });
+
+        console.log(data.rows);
 
         return res.json(eot({
             status: 1,
