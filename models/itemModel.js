@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-    const Pack = sequelize.define(
-        "pack",
+    const Item = sequelize.define(
+        "item",
         {
             id: {
                 type: Sequelize.INTEGER,
@@ -19,9 +19,9 @@ module.exports = (sequelize, Sequelize) => {
                 type: Sequelize.DOUBLE(20, 5),
                 defaultValue: 0,
             },
-            order: {
-                type: Sequelize.INTEGER,
-                defaultValue: 1,
+            comment: {
+                type: Sequelize.TEXT,
+                defaultValue: "",
             },
             order: {
                 type: Sequelize.INTEGER,
@@ -37,5 +37,5 @@ module.exports = (sequelize, Sequelize) => {
         }
     );
 
-    return Pack;
+    return Item;
 };

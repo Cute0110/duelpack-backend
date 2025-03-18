@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-    const PackItem = sequelize.define(
-        "pack_item",
+    const PackItemConnectInfo = sequelize.define(
+        "pack_Item_Connect_Info",
         {
             id: {
                 type: Sequelize.INTEGER,
@@ -11,25 +11,13 @@ module.exports = (sequelize, Sequelize) => {
                 type: Sequelize.INTEGER,
                 defaultValue: 0,
             },
-            name: {
-                type: Sequelize.STRING,
-                defaultValue: "",
-            },
-            imageUrl: {
-                type: Sequelize.STRING,
-                defaultValue: "",
-            },
-            price: {
-                type: Sequelize.DOUBLE(20, 5),
+            itemId: {
+                type: Sequelize.INTEGER,
                 defaultValue: 0,
             },
             percent: {
                 type: Sequelize.DOUBLE(20, 5),
                 defaultValue: 0,
-            },
-            comment: {
-                type: Sequelize.STRING,
-                defaultValue: "",
             },
             order: {
                 type: Sequelize.INTEGER,
@@ -45,8 +33,12 @@ module.exports = (sequelize, Sequelize) => {
         }
     );
 
-    PackItem.associate = (db) => {
-        PackItem.belongsTo(db.pack, { foreignKey: "packId", as: "pack" });
+    PackItemConnectInfo.associate = (db) => {
+        PackItemConnectInfo.belongsTo(db.pack, { foreignKey: "packId", as: "pack" });
     };
-    return PackItem;
+
+    PackItemConnectInfo.associate = (db) => {
+        PackItemConnectInfo.belongsTo(db.item, { foreignKey: "itemId", as: "item" });
+    };
+    return PackItemConnectInfo;
 };

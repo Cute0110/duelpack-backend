@@ -24,6 +24,8 @@ exports.getAllPacks = async (req, res) => {
                 ],
             };
         }
+        
+        query = { ...query, status: true};
 
         const data = await Pack.findAndCountAll({
             where: query,
@@ -62,7 +64,7 @@ exports.getItems = async (req, res) => {
             };
         }
 
-        query = {...query, packId : packID};
+        query = {...query, packId : packID, status: true};
 
         const data = await PackItem.findAndCountAll({
             where: query,

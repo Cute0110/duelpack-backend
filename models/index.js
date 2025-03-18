@@ -21,7 +21,8 @@ db.sequelize = sequelize;
 // model
 db.user = require("./userModel")(sequelize, Sequelize);
 db.pack = require("./packModel")(sequelize, Sequelize);
-db.packItem = require("./packItemModel")(sequelize, Sequelize);
+db.item = require("./itemModel")(sequelize, Sequelize);
+db.packItemConnectInfo = require("./packItemConnectInfoModel")(sequelize, Sequelize);
 db.forge = require("./forgeModel")(sequelize, Sequelize);
 
 db.sync = async () => {
