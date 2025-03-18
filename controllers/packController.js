@@ -1,7 +1,7 @@
 const Joi = require("joi");
 const db = require("../models");
 const Pack = db.pack;
-const PackItem = db.packItem;
+const PackItemConnectInfo = db.packItemConnectInfo;
 const { errorHandler, validateSchema } = require("../utils/helper");
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
@@ -14,7 +14,6 @@ exports.getAllPacks = async (req, res) => {
     try {
         const { start, length, search, order, dir } = dot(req.body);
 
-        console.log(start, length, search)
         let query = {};
 
         if (search && search.trim() !== "") {
@@ -49,11 +48,10 @@ exports.getAllPacks = async (req, res) => {
     }
 };
 
-exports.getItems = async (req, res) => {
+exports.getPackItems = async (req, res) => {
     try {
         const { start, length, search, order, dir, packID } = dot(req.body);
 
-        console.log(start, length, search)
         let query = {};
 
         if (search && search.trim() !== "") {
@@ -66,12 +64,22 @@ exports.getItems = async (req, res) => {
 
         query = {...query, packId : packID, status: true};
 
-        const data = await PackItem.findAndCountAll({
+        const data = await PackItemConnectInfo.findAndCountAll({
             where: query,
             offset: Number(start),
             limit: length == 0 ? null : Number(length),
-            order: [
-                [order, dir],
+            order: [[{ model: db.item, as: 'item' }, order, dir]], // Ordering by item.id
+            include: [
+                {
+                    model: db.pack,
+                    as: 'pack',
+                },
+            ],
+            include: [
+                {
+                    model: db.item,
+                    as: 'item',
+                },
             ],
         });
 

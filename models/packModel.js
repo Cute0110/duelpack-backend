@@ -23,7 +23,7 @@ module.exports = (sequelize, Sequelize) => {
                 type: Sequelize.INTEGER,
                 defaultValue: 1,
             },
-            order: {
+            type: {
                 type: Sequelize.INTEGER,
                 defaultValue: 1,
             },
