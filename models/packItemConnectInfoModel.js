@@ -19,6 +19,10 @@ module.exports = (sequelize, Sequelize) => {
                 type: Sequelize.DOUBLE(20, 5),
                 defaultValue: 0,
             },
+            rarity: {
+                type: Sequelize.INTEGER,
+                defaultValue: 1,
+            },
             order: {
                 type: Sequelize.INTEGER,
                 defaultValue: 1,
