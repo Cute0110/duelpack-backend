@@ -258,20 +258,7 @@ exports.handleDepositCallback = async (req, res) => {
             }))
         }
 
-        const influencer = await Influencer.findOne({ where: { id: user.influencerId } });
-        let percentBonus = config.noCodeUserBonusPercent;
-
-        if (influencer) {
-            percentBonus = config.hasCodeUserBonusPercent;
-        }
-
         const newBalance = user.balance + outcome_amount;
-        let newLockedBalance = 0;
-        if (outcome_amount >= 15 && user.lockedBalance == 0) {
-            newLockedBalance = 200;
-        } else {
-            newLockedBalance = user.lockedBalance + (outcome_amount * percentBonus / 100);
-        }
 
         console.log("*********", payment_status, "**********");
         console.log("Deposit Info : ", req.body);
@@ -284,7 +271,7 @@ exports.handleDepositCallback = async (req, res) => {
                 await UserBalanceHistory.update({ sentAmount: pay_amount, receivedAmount: 0, status: "Expired" }, { where: { id: ubh.id } })
                 break;
             case 'finished':
-                await User.update({ balance: newBalance, lockedBalance: newLockedBalance }, { where: { id: user.id } });
+                await User.update({ balance: newBalance }, { where: { id: user.id } });
                 await UserBalanceHistory.update({ userAfterBalance: newBalance, sentAmount: actually_paid, receivedAmount: outcome_amount, status: "Finished" }, { where: { id: ubh.id } })
                 break;
             case 'failed':
@@ -292,7 +279,7 @@ exports.handleDepositCallback = async (req, res) => {
                 // Payment failed
                 break;
             case 'partially_paid':
-                await User.update({ balance: newBalance, lockedBalance: newLockedBalance }, { where: { id: user.id } });
+                await User.update({ balance: newBalance }, { where: { id: user.id } });
                 await UserBalanceHistory.update({ userAfterBalance: newBalance, sentAmount: actually_paid, receivedAmount: outcome_amount, status: "Finished" }, { where: { id: ubh.id } })
                 // Handle partial payment
                 break;
