@@ -6,6 +6,7 @@ const config = require("../config/main");
 const userController = require("../controllers/userController");
 const packController = require("../controllers/packController");
 const forgeController = require("../controllers/forgeController");
+const paymentController = require("../controllers/paymentController");
 
 const { authenticate, adminAuthenticate } = require("../middleware/authMiddleware");
 
@@ -35,6 +36,10 @@ router.post("/register", userController.register);
 
 router.get("/check_session", userController.checkSession);
 router.get("/admin_check_session", adminAuthenticate, userController.checkSession);
+
+//nowpayment callback
+router.post("/depositPaymentCallback", paymentController.handleDepositCallback);
+router.post("/createInvoice", authenticate, paymentController.createInvoice);
 
 //users
 router.post("/get_all_users", adminAuthenticate, userController.getAllUsers);
