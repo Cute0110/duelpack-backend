@@ -32,6 +32,7 @@ const { authenticate, adminAuthenticate } = require("../middleware/authMiddlewar
 // routes
 
 router.post("/login", userController.login);
+router.post("/google_login", userController.google_login);
 router.post("/register", userController.register);
 
 router.get("/check_session", userController.checkSession);

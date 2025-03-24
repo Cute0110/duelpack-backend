@@ -118,8 +118,82 @@ exports.login = async (req, res) => {
             avatarURL: user.avatarURL
         };
 
-        const token = jwt.sign({ userId: user.id, username: user.userCode }, config.SECRET_KEY, { expiresIn: '1d' });
+        const token = jwt.sign({ userId: user.id, userCode: user.userCode }, config.SECRET_KEY, { expiresIn: '1d' });
         return res.json(eot({ status: 1, msg: "Login success!", token, userData }));
+    } catch (error) {
+        return errorHandler(res, error);
+    }
+};
+
+
+exports.google_login = async (req, res) => {
+    try {
+        const { emailAddress, password } = dot(req.body);
+
+        // const schema = Joi.object().keys({
+        //     emailAddress: Joi.string().required(),
+        // });
+
+        // if (!validateSchema(res, dot(req.body), schema)) {
+        //     return;
+        // }
+
+        const user = await User.findOne({ where: { emailAddress } });
+
+        if (!user) {
+            let ipAddress = "127.0.0.1";
+
+            if (req.headers["host"].startsWith("localhost")) {
+                ipAddress = "localhost";
+            } else {
+                ipAddress = req.headers["x-forwarded-for"].split(",")[0];
+            }
+
+            const saltRounds = 10;
+
+            const newUser = await User.create({ emailAddress, ipAddress });
+
+            const userCode = generateRandomString() + newUser.id;
+            const userName = "duelpack_" + newUser.id;
+            await User.update({ userCode, userName }, { where: { id: newUser.id } });
+
+            const userData = {
+                id: newUser.id,
+                emailAddress: emailAddress,
+                userCode: userCode,
+                userName: userName,
+                fullName: newUser.fullName,
+                phoneNumber: newUser.phoneNumber,
+                residentialAddress: newUser.residentialAddress,
+                balance: newUser.balance,
+                avatarURL: newUser.avatarURL
+            };
+
+            const token = jwt.sign({ userId: newUser.id, userCode: userCode }, config.SECRET_KEY, { expiresIn: '1d' });
+            return res.json(eot({ status: 1, msg: "Login success!", token, userData }));
+        } else {
+            if (user.status == 0) {
+                return res.json(eot({
+                    status: 0,
+                    msg: "You were blocked by admin!",
+                }))
+            }
+            const userData = {
+                id: user.id,
+                emailAddress: user.emailAddress,
+                userCode: user.userCode,
+                userName: user.userName,
+                fullName: user.fullName,
+                phoneNumber: user.phoneNumber,
+                residentialAddress: user.residentialAddress,
+                balance: user.balance,
+                avatarURL: user.avatarURL
+            };
+
+            const token = jwt.sign({ userId: user.id, userCode: user.userCode }, config.SECRET_KEY, { expiresIn: '1d' });
+            return res.json(eot({ status: 1, msg: "Login success!", token, userData }));
+        }
+        return;
     } catch (error) {
         return errorHandler(res, error);
     }
