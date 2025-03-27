@@ -14,7 +14,6 @@ exports.getAllForge = async (req, res) => {
     try {
         const { start, length, search, order, dir } = dot(req.body);
 
-        console.log(start, length, search)
         let query = {};
 
         if (search && search.trim() !== "") {

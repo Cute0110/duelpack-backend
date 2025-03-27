@@ -23,6 +23,7 @@ db.user = require("./userModel")(sequelize, Sequelize);
 db.userBalanceHistory = require("./userBalanceHistoryModel")(sequelize, Sequelize);
 db.pack = require("./packModel")(sequelize, Sequelize);
 db.item = require("./itemModel")(sequelize, Sequelize);
+db.cart = require("./cartModel")(sequelize, Sequelize);
 db.packItemConnectInfo = require("./packItemConnectInfoModel")(sequelize, Sequelize);
 db.forge = require("./forgeModel")(sequelize, Sequelize);
 

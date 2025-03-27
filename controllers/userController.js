@@ -355,8 +355,6 @@ exports.getAllUsers = async (req, res) => {
             nest: true,
         });
 
-        console.log(data.rows);
-
         return res.json(eot({
             status: 1,
             data: data.rows,

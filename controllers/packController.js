@@ -1,6 +1,8 @@
 const Joi = require("joi");
 const db = require("../models");
 const Pack = db.pack;
+const User = db.user;
+const Cart = db.cart;
 const PackItemConnectInfo = db.packItemConnectInfo;
 const { errorHandler, validateSchema } = require("../utils/helper");
 const bcrypt = require("bcrypt");
@@ -23,8 +25,8 @@ exports.getAllPacks = async (req, res) => {
                 ],
             };
         }
-        
-        query = { ...query, status: true};
+
+        query = { ...query, status: true };
 
         const data = await Pack.findAndCountAll({
             where: query,
@@ -62,7 +64,7 @@ exports.getPackItems = async (req, res) => {
             };
         }
 
-        query = {...query, packId : packID, status: true};
+        query = { ...query, packId: packID, status: true };
 
         const data = await PackItemConnectInfo.findAndCountAll({
             where: query,
@@ -83,8 +85,6 @@ exports.getPackItems = async (req, res) => {
             ],
         });
 
-        console.log(data.rows);
-
         return res.json(eot({
             status: 1,
             msg: "success",
@@ -97,4 +97,66 @@ exports.getPackItems = async (req, res) => {
         return errorHandler(res, error);
     }
 };
+
+exports.getAllItems = async (req, res) => {
+    try {
+        const data = await PackItemConnectInfo.findAndCountAll({
+            include: [
+                {
+                    model: db.pack,
+                    as: 'pack',
+                },
+                {
+                    model: db.item,
+                    as: 'item',
+                },
+            ],
+        });
+
+        return res.json(eot({
+            status: 1,
+            msg: "success",
+            data: data.rows,
+            count: data.count,
+        }));
+    } catch (error) {
+        return errorHandler(res, error);
+    }
+};
+
+exports.buyItems = async (req, res) => {
+    try {
+        const { itemIds, userId, payAmount } = dot(req.body);
+
+        const user = await User.findOne({ where: { id: userId } });
+        if (!user) {
+            return res.json(eot({
+                status: 0,
+                msg: "Invalid User!",
+            }));
+        }
+
+        if (user.balance < payAmount) {
+            return res.json(eot({
+                status: 0,
+                msg: "You should deposite first!",
+            }));
+        }
+
+        for (let i = 0; i < itemIds.length; i++) {
+            const newCart = await Cart.create({ userId, itemId: itemIds[i] });
+            console.log(newCart);
+        }
+
+        await User.update({ balance: user.balance - payAmount }, { where: { id: user.id } });
+
+        return res.json(eot({
+            status: 1,
+            msg: "success",
+        }));
+    } catch (error) {
+        return errorHandler(res, error);
+    }
+};
+
 

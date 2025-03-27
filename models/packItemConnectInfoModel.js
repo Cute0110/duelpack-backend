@@ -39,10 +39,8 @@ module.exports = (sequelize, Sequelize) => {
 
     PackItemConnectInfo.associate = (db) => {
         PackItemConnectInfo.belongsTo(db.pack, { foreignKey: "packId", as: "pack" });
-    };
-
-    PackItemConnectInfo.associate = (db) => {
         PackItemConnectInfo.belongsTo(db.item, { foreignKey: "itemId", as: "item" });
     };
+    
     return PackItemConnectInfo;
 };
