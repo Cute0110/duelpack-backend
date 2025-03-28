@@ -37,6 +37,8 @@ exports.getAllPacks = async (req, res) => {
             ],
         });
 
+        const packItemConnectInfoCount = await PackItemConnectInfo.count();
+
         return res.json(eot({
             status: 1,
             msg: "success",
@@ -44,6 +46,7 @@ exports.getAllPacks = async (req, res) => {
             length: Number(length),
             start: Number(start),
             count: data.count,
+            packItemConnectInfoCount: packItemConnectInfoCount
         }));
     } catch (error) {
         return errorHandler(res, error);
@@ -98,14 +101,34 @@ exports.getPackItems = async (req, res) => {
     }
 };
 
-exports.getAllItems = async (req, res) => {
+exports.getPackItemsAll = async (req, res) => {
     try {
+        const { start, length, search, order, dir } = dot(req.body);
+
+        let query = {};
+
+        if (search && search.trim() !== "") {
+            query = {
+                [Op.or]: [
+                    { name: { [Op.substring]: search } },
+                ],
+            };
+        }
+
+        query = { ...query, status: true };
+
         const data = await PackItemConnectInfo.findAndCountAll({
+            where: query,
+            offset: Number(start),
+            limit: length == 0 ? null : Number(length),
+            order: [[order, dir]], // Ordering by item.id
             include: [
                 {
                     model: db.pack,
                     as: 'pack',
                 },
+            ],
+            include: [
                 {
                     model: db.item,
                     as: 'item',
@@ -117,6 +140,8 @@ exports.getAllItems = async (req, res) => {
             status: 1,
             msg: "success",
             data: data.rows,
+            length: Number(length),
+            start: Number(start),
             count: data.count,
         }));
     } catch (error) {

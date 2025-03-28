@@ -54,7 +54,7 @@ router.post("/change_password", authenticate, userController.changeUserPassword)
 //packs
 router.post("/pack_list", packController.getAllPacks);
 router.post("/pack_items_list", packController.getPackItems);
-router.post("/all_items_list", packController.getAllItems);
+router.post("/pack_items_list_all", packController.getPackItemsAll);
 router.post("/buy_items", authenticate, packController.buyItems);
 
 //cart
