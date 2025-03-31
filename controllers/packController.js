@@ -127,8 +127,6 @@ exports.getPackItemsAll = async (req, res) => {
                     model: db.pack,
                     as: 'pack',
                 },
-            ],
-            include: [
                 {
                     model: db.item,
                     as: 'item',
