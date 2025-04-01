@@ -43,7 +43,7 @@ router.get("/admin_check_session", adminAuthenticate, userController.checkSessio
 router.post("/depositPaymentCallback", paymentController.handleDepositCallback);
 router.post("/createInvoice", authenticate, paymentController.createInvoice);
 
-//users
+//admin pages
 router.post("/get_all_users", adminAuthenticate, userController.getAllUsers);
 router.post("/user_delete", adminAuthenticate, userController.userDelete);
 router.post("/user_status_change", adminAuthenticate, userController.userStatusChange);
@@ -60,6 +60,11 @@ router.post("/buy_items", authenticate, packController.buyItems);
 //cart
 router.post("/cart_list", authenticate, cartController.getAllItems);
 router.post("/sell_cart_items", authenticate, cartController.sellItems);
+
+//transactions
+router.post("/get_deposit_histories", adminAuthenticate, paymentController.getAllDepositHistory);
+router.post("/get_withdraw_histories", adminAuthenticate, paymentController.getAllWithdrawHistory);
+router.post("/withdraw_confirm", adminAuthenticate, paymentController.onWithdrawConfirm);
 
 //forge
 router.post("/forge_list", forgeController.getAllForge);

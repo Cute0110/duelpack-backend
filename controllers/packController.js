@@ -168,7 +168,6 @@ exports.buyItems = async (req, res) => {
 
         for (let i = 0; i < itemIds.length; i++) {
             const newCart = await Cart.create({ userId, itemId: itemIds[i] });
-            console.log(newCart);
         }
 
         await User.update({ balance: user.balance - payAmount }, { where: { id: user.id } });
