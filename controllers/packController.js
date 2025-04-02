@@ -45,7 +45,7 @@ exports.getAllPacks = async (req, res) => {
             data: data.rows,
             length: Number(length),
             start: Number(start),
-            count: data.count,
+            totalCount: data.count,
             packItemConnectInfoCount: packItemConnectInfoCount
         }));
     } catch (error) {

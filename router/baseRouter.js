@@ -5,6 +5,7 @@ const config = require("../config/main");
 // controllers
 const userController = require("../controllers/userController");
 const packController = require("../controllers/packController");
+const itemController = require("../controllers/itemController");
 const forgeController = require("../controllers/forgeController");
 const cartController = require("../controllers/cartController");
 const paymentController = require("../controllers/paymentController");
@@ -56,6 +57,9 @@ router.post("/pack_list", packController.getAllPacks);
 router.post("/pack_items_list", packController.getPackItems);
 router.post("/pack_items_list_all", packController.getPackItemsAll);
 router.post("/buy_items", authenticate, packController.buyItems);
+
+//items
+router.post("/item_list", itemController.getAllItems);
 
 //cart
 router.post("/cart_list", authenticate, cartController.getAllItems);

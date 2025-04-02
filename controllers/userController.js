@@ -328,7 +328,7 @@ exports.getAllUsers = async (req, res) => {
         query = {
             [Op.and]: [
                 query,
-                { userCode: { [Op.notIn]: [config.admin1, config.admin2] } }
+                { userCode: { [Op.notIn]: config.admins } }
             ]
         };
 

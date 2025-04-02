@@ -54,7 +54,7 @@ var adminAuthenticate = async (req, res, next) => {
             return res.status(401).json(eot({ status: 0, msg: 'Invalid or expired token' }));
         }
 
-        if (user.userCode != config.admin1 && user.userCode != config.admin2) {
+        if (!config.admins.includes(user.userCode)) {
             return res.status(401).json(eot({ status: 0, msg: 'Invalid admin' }));
         }
         return next();
