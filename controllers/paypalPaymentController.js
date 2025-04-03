@@ -31,6 +31,14 @@ exports.createOrder = async (req, res) => {
                     },
                 },
             ],
+            application_context: {    
+                shipping_preference: "NO_SHIPPING", // ✅ Removes shipping fields
+                user_action: "PAY_NOW", // ✅ Prevents unnecessary steps
+                payment_method: {
+                  payer_selected: "PAYPAL",
+                  payee_preferred: "IMMEDIATE_PAYMENT_REQUIRED",
+                },
+            }
         })
         const response = await PaypalClient.execute(request)
         if (response.statusCode !== 201) {
