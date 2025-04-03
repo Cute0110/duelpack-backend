@@ -9,6 +9,7 @@ const itemController = require("../controllers/itemController");
 const forgeController = require("../controllers/forgeController");
 const cartController = require("../controllers/cartController");
 const paymentController = require("../controllers/paymentController");
+const paypalPaymentController = require("../controllers/paypalPaymentController");
 
 const { authenticate, adminAuthenticate } = require("../middleware/authMiddleware");
 
@@ -72,5 +73,9 @@ router.post("/withdraw_confirm", adminAuthenticate, paymentController.onWithdraw
 
 //forge
 router.post("/forge_list", forgeController.getAllForge);
+
+// Create PayPal Payment
+router.post("/create_order", authenticate, paypalPaymentController.createOrder);
+router.post("/capture_order", authenticate, paypalPaymentController.captureOrder);
 
 module.exports = router;

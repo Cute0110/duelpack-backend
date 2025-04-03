@@ -11,6 +11,10 @@ module.exports = (sequelize, Sequelize) => {
                 type: Sequelize.INTEGER,
                 allowNull: false,
             },
+            orderId: {
+                type: Sequelize.STRING,
+                defaultValue: "",
+            },
             type: {
                 type: Sequelize.STRING,
                 defaultValue: "",
