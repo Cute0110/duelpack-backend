@@ -36,6 +36,10 @@ exports.getAllForge = async (req, res) => {
                     model: db.user,
                     as: 'user',
                 },
+                {
+                    model: db.item,
+                    as: 'item',
+                },
             ],
         });
 

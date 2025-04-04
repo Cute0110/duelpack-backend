@@ -11,17 +11,9 @@ module.exports = (sequelize, Sequelize) => {
                 type: Sequelize.INTEGER,
                 defaultValue: 0,
             },
-            name: {
+            itemId: {
                 type: Sequelize.STRING,
                 defaultValue: "",
-            },
-            imageUrl: {
-                type: Sequelize.STRING,
-                defaultValue: "",
-            },
-            price: {
-                type: Sequelize.DOUBLE(20, 5),
-                defaultValue: 0,
             },
             multi: {
                 type: Sequelize.DOUBLE(20, 5),
@@ -43,6 +35,7 @@ module.exports = (sequelize, Sequelize) => {
 
     Forge.associate = (db) => {
         Forge.belongsTo(db.user, { foreignKey: "userId", as: "user" });
+        Forge.belongsTo(db.item, { foreignKey: "itemId", as: "item" });
     };
     return Forge;
 };
