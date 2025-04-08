@@ -298,8 +298,10 @@ exports.userTransaction = async (req, res) => {
 
 exports.userBalanceChange = async (req, res) => {
     try {
-        const { id, newBalance } = dot(req.body);
-        const user = await User.update({ balance: newBalance }, { where: { id } });
+        const { id, priceAmount } = dot(req.body);
+        const user = await User.findOne({where: { id }});
+
+        await User.update({ balance: user.balance + priceAmount }, { where: { id } });
         return res.json(eot({
             status: 1,
             msg: "success"
