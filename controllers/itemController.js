@@ -15,19 +15,18 @@ const { Op } = require("sequelize");
 
 exports.getAllItems = async (req, res) => {
     try {
-        const { start, length, search, order, dir } = dot(req.body);
+        const { start, length, search, order, dir, maxPrice } = dot(req.body);
+        let query = { status: true }; // Start with the status condition
 
-        let query = {};
-
+        // Add search condition if provided
         if (search && search.trim() !== "") {
-            query = {
-                [Op.or]: [
-                    { name: { [Op.substring]: search } },
-                ],
-            };
+            query.name = { [Op.substring]: search }; // Directly assign the substring condition to 'name'
         }
-
-        query = { ...query, status: true };
+        
+        // Add price condition if maxPrice is not zero
+        if (maxPrice && maxPrice !== 0) {
+            query.price = { [Op.lt]: maxPrice };
+        }
 
         const data = await Item.findAndCountAll({
             where: query,

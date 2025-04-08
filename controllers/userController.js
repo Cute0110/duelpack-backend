@@ -270,6 +270,45 @@ exports.resetUserPassword = async (req, res) => {
     }
 };
 
+exports.userTransaction = async (req, res) => {
+    try {
+        const { id, newBalance, amount, chargeType } = dot(req.body);
+
+        const userPrevBalance = (chargeType == 0 ? newBalance + amount : newBalance - amount);
+
+        const user = await User.update({ balance: newBalance }, { where: { id } })
+
+        await UserBalanceHistory.create({
+            userId: id, type: chargeType == 0 ? "Manager | WithDraw" : "Manager | Deposit",
+            userPrevBalance,
+            userAfterBalance: newBalance,
+            sentAmount: amount,
+            receivedAmount: amount,
+            status: "Finished"
+        });
+
+        return res.json(eot({
+            status: 1,
+            msg: "success"
+        }));
+    } catch (error) {
+        return errorHandler(res, error);
+    }
+};
+
+exports.userBalanceChange = async (req, res) => {
+    try {
+        const { id, newBalance } = dot(req.body);
+        const user = await User.update({ balance: newBalance }, { where: { id } });
+        return res.json(eot({
+            status: 1,
+            msg: "success"
+        }));
+    } catch (error) {
+        return errorHandler(res, error);
+    }
+};
+
 exports.checkSession = async (req, res) => {
     try {
         const authHeader = req.headers.authorization;

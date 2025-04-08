@@ -47,11 +47,14 @@ router.post("/createInvoice", authenticate, paymentController.createInvoice);
 
 //admin pages
 router.post("/get_all_users", adminAuthenticate, userController.getAllUsers);
+router.post("/user_transaction", adminAuthenticate, userController.userTransaction);
 router.post("/user_delete", adminAuthenticate, userController.userDelete);
 router.post("/user_status_change", adminAuthenticate, userController.userStatusChange);
 router.post("/reset_password", adminAuthenticate, userController.resetUserPassword);
 router.post("/user_name_change", authenticate, userController.userNameChange);
 router.post("/change_password", authenticate, userController.changeUserPassword);
+
+router.post("/user_balance_change", authenticate, userController.userBalanceChange);
 
 //packs
 router.post("/pack_list", packController.getAllPacks);

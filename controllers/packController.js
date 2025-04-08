@@ -150,28 +150,9 @@ exports.getPackItemsAll = async (req, res) => {
 exports.buyItems = async (req, res) => {
     try {
         const { itemIds, userId, payAmount } = dot(req.body);
-
-        const user = await User.findOne({ where: { id: userId } });
-        if (!user) {
-            return res.json(eot({
-                status: 0,
-                msg: "Invalid User!",
-            }));
-        }
-
-        if (user.balance < payAmount) {
-            return res.json(eot({
-                status: 0,
-                msg: "You should deposite first!",
-            }));
-        }
-
         for (let i = 0; i < itemIds.length; i++) {
-            const newCart = await Cart.create({ userId, itemId: itemIds[i] });
+            await Cart.create({ userId, itemId: itemIds[i] });
         }
-
-        await User.update({ balance: user.balance - payAmount }, { where: { id: user.id } });
-
         return res.json(eot({
             status: 1,
             msg: "success",
