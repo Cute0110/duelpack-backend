@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-    const Forge = sequelize.define(
-        "forge",
+    const BuyPackHistory = sequelize.define(
+        "buy_pack_history",
         {
             id: {
                 type: Sequelize.INTEGER,
@@ -11,17 +11,17 @@ module.exports = (sequelize, Sequelize) => {
                 type: Sequelize.INTEGER,
                 defaultValue: 0,
             },
-            itemId: {
+            packItemIds: {
                 type: Sequelize.STRING,
                 defaultValue: "",
             },
-            multi: {
+            userPrevBalance: {
                 type: Sequelize.DOUBLE(20, 5),
                 defaultValue: 0,
             },
-            order: {
-                type: Sequelize.INTEGER,
-                defaultValue: 1,
+            userAfterBalance: {
+                type: Sequelize.DOUBLE(20, 5),
+                defaultValue: 0,
             },
             status: {
                 type: Sequelize.BOOLEAN,
@@ -33,9 +33,8 @@ module.exports = (sequelize, Sequelize) => {
         }
     );
 
-    Forge.associate = (db) => {
-        Forge.belongsTo(db.user, { foreignKey: "userId", as: "user" });
-        Forge.belongsTo(db.item, { foreignKey: "itemId", as: "item" });
+    BuyPackHistory.associate = (db) => {
+        BuyPackHistory.belongsTo(db.user, { foreignKey: "userId", as: "user" });
     };
-    return Forge;
+    return BuyPackHistory;
 };

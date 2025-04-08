@@ -25,7 +25,8 @@ db.pack = require("./packModel")(sequelize, Sequelize);
 db.item = require("./itemModel")(sequelize, Sequelize);
 db.cart = require("./cartModel")(sequelize, Sequelize);
 db.packItemConnectInfo = require("./packItemConnectInfoModel")(sequelize, Sequelize);
-db.forge = require("./forgeModel")(sequelize, Sequelize);
+db.forgeHistory = require("./forgeHistoryModel")(sequelize, Sequelize);
+db.buyPackHistory = require("./buyPackHistoryModel")(sequelize, Sequelize);
 
 db.sync = async () => {
     await db.sequelize.sync();

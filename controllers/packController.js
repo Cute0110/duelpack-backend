@@ -3,13 +3,10 @@ const db = require("../models");
 const Pack = db.pack;
 const User = db.user;
 const Cart = db.cart;
+const BuyPackHistory = db.buyPackHistory;
 const PackItemConnectInfo = db.packItemConnectInfo;
 const { errorHandler, validateSchema } = require("../utils/helper");
-const bcrypt = require("bcrypt");
-const jwt = require('jsonwebtoken');
-const config = require("../config/main");
 const { eot, dot } = require('../utils/cryptoUtils');
-const Sequelize = require("sequelize");
 const { Op } = require("sequelize");
 
 exports.getAllPacks = async (req, res) => {
@@ -149,7 +146,26 @@ exports.getPackItemsAll = async (req, res) => {
 
 exports.buyItems = async (req, res) => {
     try {
-        const { itemIds, userId, payAmount } = dot(req.body);
+        const { packIds, itemIds, userId, payAmount } = dot(req.body);
+
+        const user = await User.findOne({where: {id: userId}});
+
+        if (user.balance < payAmount) {
+            return errorHandler(res, "Please deposit first!");
+        }
+        const userPrevBalance = user.balance;
+        const userAfterBalance = user.balance - payAmount;
+
+        await User.update({balance: user.balance - payAmount}, {where: {id: user.id}});
+
+        let temp = "";
+
+        for (let i = 0 ; i < packIds.length ; i ++ ) {
+            temp += (packIds[i] + '-' + itemIds[i] + ',');
+        }
+
+        await BuyPackHistory.create({userId, packItemIds: temp, userPrevBalance, userAfterBalance})
+
         for (let i = 0; i < itemIds.length; i++) {
             await Cart.create({ userId, itemId: itemIds[i] });
         }

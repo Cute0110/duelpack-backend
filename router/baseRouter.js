@@ -54,8 +54,6 @@ router.post("/reset_password", adminAuthenticate, userController.resetUserPasswo
 router.post("/user_name_change", authenticate, userController.userNameChange);
 router.post("/change_password", authenticate, userController.changeUserPassword);
 
-router.post("/user_balance_change", authenticate, userController.userBalanceChange);
-
 //packs
 router.post("/pack_list", packController.getAllPacks);
 router.post("/pack_items_list", packController.getPackItems);
@@ -76,6 +74,7 @@ router.post("/withdraw_confirm", adminAuthenticate, paymentController.onWithdraw
 
 //forge
 router.post("/forge_list", forgeController.getAllForge);
+router.post("/forge_bet", forgeController.onBetForge);
 
 // Create PayPal Payment
 router.post("/create_order", authenticate, paypalPaymentController.createOrder);
