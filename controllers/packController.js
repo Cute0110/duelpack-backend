@@ -3,11 +3,13 @@ const db = require("../models");
 const Pack = db.pack;
 const User = db.user;
 const Cart = db.cart;
+const Affiliate = db.affiliate;
 const BuyPackHistory = db.buyPackHistory;
 const PackItemConnectInfo = db.packItemConnectInfo;
 const { errorHandler, validateSchema } = require("../utils/helper");
 const { eot, dot } = require('../utils/cryptoUtils');
 const { Op } = require("sequelize");
+const config = require('../config/main');
 
 exports.getAllPacks = async (req, res) => {
     try {
@@ -156,7 +158,7 @@ exports.buyItems = async (req, res) => {
         const userPrevBalance = user.balance;
         const userAfterBalance = user.balance - payAmount;
 
-        await User.update({balance: user.balance - payAmount}, {where: {id: user.id}});
+        await User.update({balance: user.balance - payAmount, totalWager: (user.totalWager + payAmount)}, {where: {id: user.id}});
 
         let temp = "";
 
@@ -169,6 +171,15 @@ exports.buyItems = async (req, res) => {
         for (let i = 0; i < itemIds.length; i++) {
             await Cart.create({ userId, itemId: itemIds[i] });
         }
+
+        const affiliate = await Affiliate.findOne({ where: {userId}});
+
+        if (affiliate) {
+            const refer = await User.findOne({ where: { id: affiliate.referId } });
+            const bonusVal = payAmount / config.affiliateBonusPercent;
+            await User.update({totalEarning: refer.totalEarning + bonusVal, unClaimEarning: refer.unClaimEarning + bonusVal}, {where: {id: refer.id}})
+        }
+
         return res.json(eot({
             status: 1,
             msg: "success",

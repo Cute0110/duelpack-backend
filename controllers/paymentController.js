@@ -272,7 +272,7 @@ exports.handleDepositCallback = async (req, res) => {
                 await UserBalanceHistory.update({ sentAmount: pay_amount, receivedAmount: 0, status: "Expired" }, { where: { id: ubh.id } })
                 break;
             case 'finished':
-                await User.update({ balance: newBalance }, { where: { id: user.id } });
+                await User.update({ balance: newBalance, totalDeposit: (user.totalDeposit + outcome_amount) }, { where: { id: user.id } });
                 await UserBalanceHistory.update({ userAfterBalance: newBalance, sentAmount: actually_paid, receivedAmount: outcome_amount, status: "Finished" }, { where: { id: ubh.id } })
                 break;
             case 'failed':
@@ -280,7 +280,7 @@ exports.handleDepositCallback = async (req, res) => {
                 // Payment failed
                 break;
             case 'partially_paid':
-                await User.update({ balance: newBalance }, { where: { id: user.id } });
+                await User.update({ balance: newBalance, totalDeposit: (user.totalDeposit + outcome_amount) }, { where: { id: user.id } });
                 await UserBalanceHistory.update({ userAfterBalance: newBalance, sentAmount: actually_paid, receivedAmount: outcome_amount, status: "Finished" }, { where: { id: ubh.id } })
                 // Handle partial payment
                 break;

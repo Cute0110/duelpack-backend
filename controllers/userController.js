@@ -1,6 +1,7 @@
 const Joi = require("joi");
 const db = require("../models");
 const User = db.user;
+const Affiliate = db.affiliate;
 const UserBetInfo = db.userBetInfo;
 const Influencer = db.influencer;
 const UserBalanceHistory = db.userBalanceHistory;
@@ -23,23 +24,27 @@ const generateRandomString = (length = 25) => {
     return result;
 };
 
+const generateRandomNumber = (length = 8) => {
+    const chars = "0123456789";
+    let result = "";
+    const array = new Uint8Array(length);
+    crypto.getRandomValues(array);
+    array.forEach((byte) => {
+        result += chars[byte % chars.length];
+    });
+    return result;
+};
+
 exports.register = async (req, res) => {
     try {
-        const { emailAddress, password } = dot(req.body);
+        const { emailAddress, password, referCode } = dot(req.body);
+
         let ipAddress = "127.0.0.1";
-        const schema = Joi.object().keys({
-            emailAddress: Joi.string().required(),
-            password: Joi.string().required(),
-        });
 
         if (req.headers["host"].startsWith("localhost")) {
             ipAddress = "localhost";
         } else {
             ipAddress = req.headers["x-forwarded-for"].split(",")[0];
-        }
-
-        if (!validateSchema(res, dot(req.body), schema)) {
-            return;
         }
 
         const user = await User.findOne({ where: { emailAddress } });
@@ -55,9 +60,17 @@ exports.register = async (req, res) => {
 
         const newUser = await User.create({ emailAddress, password: hashedPassword, ipAddress });
 
+        const referralCode = generateRandomNumber() + newUser.id;
         const userCode = generateRandomString() + newUser.id;
         const userName = "duelpack_" + newUser.id;
-        await User.update({ userCode, userName }, { where: { id: newUser.id } })
+        await User.update({ userCode, userName, referralCode }, { where: { id: newUser.id } })
+
+        if (referCode) {
+            const refer = await User.findOne({ where: { referralCode: referCode } });
+            if (refer) {
+                await Affiliate.create({ userId: newUser.id, referId: refer.id, referralCode: referCode });
+            }
+        }
 
         return res.json(eot({
             status: 1,
@@ -115,6 +128,11 @@ exports.login = async (req, res) => {
             phoneNumber: user.phoneNumber,
             residentialAddress: user.residentialAddress,
             balance: user.balance,
+            totalDeposit: user.totalDeposit,
+            totalWager: user.totalWager,
+            totalEarning: user.totalEarning,
+            unClaimEarning: user.unClaimEarning,
+            referralCode: user.referralCode,
             avatarURL: user.avatarURL
         };
 
@@ -128,7 +146,7 @@ exports.login = async (req, res) => {
 
 exports.google_login = async (req, res) => {
     try {
-        const { emailAddress, password } = dot(req.body);
+        const { emailAddress, password, referCode } = dot(req.body);
 
         // const schema = Joi.object().keys({
         //     emailAddress: Joi.string().required(),
@@ -154,8 +172,16 @@ exports.google_login = async (req, res) => {
             const newUser = await User.create({ emailAddress, ipAddress });
 
             const userCode = generateRandomString() + newUser.id;
+            const referralCode = generateRandomNumber() + newUser.id;
             const userName = "duelpack_" + newUser.id;
-            await User.update({ userCode, userName }, { where: { id: newUser.id } });
+            await User.update({ userCode, userName, referralCode }, { where: { id: newUser.id } });
+
+            if (referCode) {
+                const refer = await User.findOne({ where: { referralCode: referCode } });
+                if (refer) {
+                    await Affiliate.create({ userId: newUser.id, referId: refer.id, referralCode: referCode });
+                }
+            }
 
             const userData = {
                 id: newUser.id,
@@ -166,6 +192,11 @@ exports.google_login = async (req, res) => {
                 phoneNumber: newUser.phoneNumber,
                 residentialAddress: newUser.residentialAddress,
                 balance: newUser.balance,
+                totalDeposit: newUser.totalDeposit,
+                totalWager: newUser.totalWager,
+                totalEarning: newUser.totalEarning,
+                unClaimEarning: newUser.unClaimEarning,
+                referralCode: referralCode,
                 avatarURL: newUser.avatarURL
             };
 
@@ -187,6 +218,11 @@ exports.google_login = async (req, res) => {
                 phoneNumber: user.phoneNumber,
                 residentialAddress: user.residentialAddress,
                 balance: user.balance,
+                totalDeposit: user.totalDeposit,
+                totalWager: user.totalWager,
+                totalEarning: user.totalEarning,
+                unClaimEarning: user.unClaimEarning,
+                referralCode: user.referralCode,
                 avatarURL: user.avatarURL
             };
 
@@ -274,7 +310,7 @@ exports.getUserDepositHistory = async (req, res) => {
     try {
         const { start, length, search, order, dir, userId } = dot(req.body);
 
-        let query = {userId, status: "Finished"};
+        let query = { userId, status: "Finished" };
 
         if (search && search.trim() !== "") {
             query = {
@@ -320,7 +356,7 @@ exports.getUserWithdrawHistory = async (req, res) => {
     try {
         const { start, length, search, order, dir, userId } = dot(req.body);
 
-        let query = {userId, status: "Finished"};
+        let query = { userId, status: "Finished" };
 
         if (search && search.trim() !== "") {
             query = {
@@ -401,12 +437,19 @@ exports.onSaveProfile = async (req, res) => {
     }
 };
 
-exports.userBalanceChange = async (req, res) => {
+exports.onSaveReferralCode = async (req, res) => {
     try {
-        const { id, priceAmount } = dot(req.body);
-        const user = await User.findOne({ where: { id } });
+        const { userInfo } = dot(req.body);
 
-        await User.update({ balance: user.balance + priceAmount }, { where: { id } });
+        const user = await User.findOne({ where: { referralCode: userInfo.referralCode } });
+        if (user) {
+            return res.json(eot({
+                status: 0,
+                msg: "This referral code already exist!"
+            }));
+        }
+
+        await User.update({ referralCode: userInfo.referralCode }, { where: { id: userInfo.userId } });
         return res.json(eot({
             status: 1,
             msg: "success"
@@ -447,6 +490,11 @@ exports.checkSession = async (req, res) => {
             phoneNumber: user.phoneNumber,
             residentialAddress: user.residentialAddress,
             balance: user.balance,
+            totalDeposit: user.totalDeposit,
+            totalWager: user.totalWager,
+            totalEarning: user.totalEarning,
+            unClaimEarning: user.unClaimEarning,
+            referralCode: user.referralCode,
             avatarURL: user.avatarURL
         };
 
@@ -506,21 +554,6 @@ exports.userStatusChange = async (req, res) => {
         const { id, status } = dot(req.body);
 
         const user = await User.update({ status }, { where: { id } })
-
-        return res.json(eot({
-            status: 1,
-            msg: "success"
-        }));
-    } catch (error) {
-        return errorHandler(res, error);
-    }
-};
-
-exports.userNameChange = async (req, res) => {
-    try {
-        const { id, userName } = dot(req.body);
-
-        const user = await User.update({ userName }, { where: { id } })
 
         return res.json(eot({
             status: 1,

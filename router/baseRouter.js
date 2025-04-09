@@ -8,6 +8,7 @@ const packController = require("../controllers/packController");
 const itemController = require("../controllers/itemController");
 const forgeController = require("../controllers/forgeController");
 const cartController = require("../controllers/cartController");
+const affiliateController = require("../controllers/affiliateController");
 const paymentController = require("../controllers/paymentController");
 const paypalPaymentController = require("../controllers/paypalPaymentController");
 
@@ -51,13 +52,16 @@ router.post("/user_transaction", adminAuthenticate, userController.userTransacti
 router.post("/user_delete", adminAuthenticate, userController.userDelete);
 router.post("/user_status_change", adminAuthenticate, userController.userStatusChange);
 router.post("/reset_password", adminAuthenticate, userController.resetUserPassword);
-router.post("/user_name_change", authenticate, userController.userNameChange);
 router.post("/change_password", authenticate, userController.changeUserPassword);
 
 //users
 router.post("/profile_save", authenticate, userController.onSaveProfile);
+router.post("/referralCode_save", authenticate, userController.onSaveReferralCode);
 router.post("/user_deposit_history", authenticate, userController.getUserDepositHistory);
 router.post("/user_withdraw_history", authenticate, userController.getUserWithdrawHistory);
+
+//affiliate
+router.post("/get_user_affiliate", authenticate, affiliateController.getUserAffiliate);
 
 //packs
 router.post("/pack_list", packController.getAllPacks);
@@ -79,7 +83,7 @@ router.post("/withdraw_confirm", adminAuthenticate, paymentController.onWithdraw
 
 //forge
 router.post("/forge_list", forgeController.getAllForge);
-router.post("/forge_bet", forgeController.onBetForge);
+router.post("/forge_bet", authenticate, forgeController.onBetForge);
 
 // Create PayPal Payment
 router.post("/create_order", authenticate, paypalPaymentController.createOrder);

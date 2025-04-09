@@ -20,6 +20,7 @@ db.sequelize = sequelize;
 
 // model
 db.user = require("./userModel")(sequelize, Sequelize);
+db.affiliate = require("./affiliateModel")(sequelize, Sequelize);
 db.userBalanceHistory = require("./userBalanceHistoryModel")(sequelize, Sequelize);
 db.pack = require("./packModel")(sequelize, Sequelize);
 db.item = require("./itemModel")(sequelize, Sequelize);

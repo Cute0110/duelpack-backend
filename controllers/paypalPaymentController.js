@@ -100,7 +100,7 @@ exports.captureOrder = async (req, res) => {
         const nub = await UserBalanceHistory.findOne({ where: {orderId: orderID}});
         const newBalance = (nub.userPrevBalance + Number(depositAmount));
     
-        await User.update({ balance: newBalance }, { where: { id: user.id } });
+        await User.update({ balance: newBalance, totalDeposit: (user.totalDeposit + Number(depositAmount)) }, { where: { id: user.id } });
         await UserBalanceHistory.update({ userAfterBalance: newBalance, receivedAmount: depositAmount, status: "Finished" }, {where: {id: nub.id}});
     
         return res.status(200).json(eot({ success: true, data: response, newBalance: newBalance }))

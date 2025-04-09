@@ -2,9 +2,11 @@ const Joi = require("joi");
 const db = require("../models");
 const ForgeHistory = db.forgeHistory;
 const User = db.user;
+const Affiliate = db.affiliate;
 const { errorHandler } = require("../utils/helper");
 const { eot, dot } = require('../utils/cryptoUtils');
 const { Op } = require("sequelize");
+const config = require('../config/main');
 
 exports.getAllForge = async (req, res) => {
     try {
@@ -64,9 +66,17 @@ exports.onBetForge = async (req, res) => {
         const userPrevBalance = user.balance;
         const userAfterBalance = result ? (user.balance - betAmount + betAmount * multiVal) : (user.balance - betAmount);
 
-        await User.update({ balance: userAfterBalance }, { where: { id: user.id } });
-
+        await User.update({ balance: userAfterBalance, totalWager: (user.totalWager + betAmount) }, { where: { id: user.id } });
         await ForgeHistory.create({ userId, itemId, userPrevBalance, userAfterBalance, betAmount, multi: multiVal, result: result ? "success" : "failed" });
+        
+        const affiliate = await Affiliate.findOne({ where: {userId}});
+
+        if (affiliate) {
+            const refer = await User.findOne({ where: { id: affiliate.referId } });
+            const bonusVal = betAmount / config.affiliateBonusPercent;
+            await User.update({totalEarning: refer.totalEarning + bonusVal, unClaimEarning: refer.unClaimEarning + bonusVal}, {where: {id: refer.id}})
+        }
+
         return res.json(eot({
             status: 1,
             msg: "success",

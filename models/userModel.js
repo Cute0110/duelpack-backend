@@ -25,7 +25,7 @@ module.exports = (sequelize, Sequelize) => {
             },
             avatarURL: {
                 type: Sequelize.STRING,
-                defaultValue: "/images/users/default.jpg",
+                defaultValue: "/images/users/default.png",
             },
             phoneNumber: {
                 type: Sequelize.STRING,
@@ -46,6 +46,26 @@ module.exports = (sequelize, Sequelize) => {
             balance: {
                 type: Sequelize.DOUBLE(20, 5),
                 defaultValue: 0,
+            },
+            totalDeposit: {
+                type: Sequelize.DOUBLE(20, 5),
+                defaultValue: 0,
+            },
+            totalWager: {
+                type: Sequelize.DOUBLE(20, 5),
+                defaultValue: 0,
+            },
+            totalEarning: {
+                type: Sequelize.DOUBLE(20, 5),
+                defaultValue: 0,
+            },
+            unClaimEarning: {
+                type: Sequelize.DOUBLE(20, 5),
+                defaultValue: 0,
+            },
+            referralCode: {
+                type: Sequelize.STRING,
+                defaultValue: "",
             },
             status: {
                 type: Sequelize.BOOLEAN,
