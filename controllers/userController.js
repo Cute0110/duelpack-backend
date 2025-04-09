@@ -270,6 +270,98 @@ exports.resetUserPassword = async (req, res) => {
     }
 };
 
+exports.getUserDepositHistory = async (req, res) => {
+    try {
+        const { start, length, search, order, dir, userId } = dot(req.body);
+
+        let query = {userId, status: "Finished"};
+
+        if (search && search.trim() !== "") {
+            query = {
+                [Op.or]: [
+                    { name: { [Op.substring]: search } },
+                    { promoCode: { [Op.substring]: search } }
+                ],
+            };
+        }
+
+        query = {
+            ...query,
+            type: { [Op.substring]: "Deposit" },
+        }
+
+        const data = await UserBalanceHistory.findAndCountAll({
+            include: [{
+                model: User,
+                as: "user",
+                attributes: ['id', 'userCode', 'userName', 'emailAddress'],
+            }],
+            where: query,
+            offset: Number(start),
+            limit: Number(length),
+            order: [
+                [order, dir],
+            ],
+        });
+
+        return res.json(eot({
+            status: 1,
+            data: data.rows,
+            length: Number(length),
+            start: Number(start),
+            totalCount: data.count,
+        }));
+    } catch (error) {
+        return errorHandler(res, error);
+    }
+};
+
+exports.getUserWithdrawHistory = async (req, res) => {
+    try {
+        const { start, length, search, order, dir, userId } = dot(req.body);
+
+        let query = {userId, status: "Finished"};
+
+        if (search && search.trim() !== "") {
+            query = {
+                [Op.or]: [
+                    { name: { [Op.substring]: search } },
+                    { promoCode: { [Op.substring]: search } }
+                ],
+            };
+        }
+
+        query = {
+            ...query,
+            type: { [Op.substring]: "Withdraw" },
+        }
+
+        const data = await UserBalanceHistory.findAndCountAll({
+            include: [{
+                model: User,
+                as: "user",
+                attributes: ['id', 'userCode', 'userName', 'emailAddress'],
+            }],
+            where: query,
+            offset: Number(start),
+            limit: Number(length),
+            order: [
+                [order, dir],
+            ],
+        });
+
+        return res.json(eot({
+            status: 1,
+            data: data.rows,
+            length: Number(length),
+            start: Number(start),
+            totalCount: data.count,
+        }));
+    } catch (error) {
+        return errorHandler(res, error);
+    }
+};
+
 exports.userTransaction = async (req, res) => {
     try {
         const { id, newBalance, amount, chargeType } = dot(req.body);
@@ -296,10 +388,23 @@ exports.userTransaction = async (req, res) => {
     }
 };
 
+exports.onSaveProfile = async (req, res) => {
+    try {
+        const { userInfo } = dot(req.body);
+        await User.update({ userName: userInfo.userName, fullName: userInfo.fullName }, { where: { id: userInfo.userId } });
+        return res.json(eot({
+            status: 1,
+            msg: "success"
+        }));
+    } catch (error) {
+        return errorHandler(res, error);
+    }
+};
+
 exports.userBalanceChange = async (req, res) => {
     try {
         const { id, priceAmount } = dot(req.body);
-        const user = await User.findOne({where: { id }});
+        const user = await User.findOne({ where: { id } });
 
         await User.update({ balance: user.balance + priceAmount }, { where: { id } });
         return res.json(eot({

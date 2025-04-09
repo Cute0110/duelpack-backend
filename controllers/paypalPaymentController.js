@@ -58,7 +58,7 @@ exports.createOrder = async (req, res) => {
             return res.json(eot({ status: 0, msg: 'Invalid user!' }));
         }
 
-        const newUserBalanceHistory = await UserBalanceHistory.create({ orderId: response.result.id, userId: decoded.userId, userPrevBalance: user.balance, userAfterBalance: user.balance, sentAmount: order_price, type: "Deposit", status: "Waiting" });
+        const newUserBalanceHistory = await UserBalanceHistory.create({ orderId: response.result.id, userId: decoded.userId, userPrevBalance: user.balance, userAfterBalance: user.balance, sentAmount: order_price, type: "Payapl | Deposit", status: "Waiting" });
 
         res.status(200).json(eot({ success: true, orderId: response.result.id }))
     }

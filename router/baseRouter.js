@@ -54,6 +54,11 @@ router.post("/reset_password", adminAuthenticate, userController.resetUserPasswo
 router.post("/user_name_change", authenticate, userController.userNameChange);
 router.post("/change_password", authenticate, userController.changeUserPassword);
 
+//users
+router.post("/profile_save", authenticate, userController.onSaveProfile);
+router.post("/user_deposit_history", authenticate, userController.getUserDepositHistory);
+router.post("/user_withdraw_history", authenticate, userController.getUserWithdrawHistory);
+
 //packs
 router.post("/pack_list", packController.getAllPacks);
 router.post("/pack_items_list", packController.getPackItems);
