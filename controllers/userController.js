@@ -459,6 +459,47 @@ exports.onSaveReferralCode = async (req, res) => {
     }
 };
 
+exports.onSendPromoCode = async (req, res) => {
+    try {
+        const { userId, referralCode } = dot(req.body);
+
+        const affiliate = await Affiliate.findOne({where: {userId}});
+        if (affiliate) {
+            return res.json(eot({
+                status: 0,
+                msg: "You already sent code!"
+            }));
+        }
+
+        const user = await User.findOne({where: {id: userId}});
+        if (user) {
+            if (user.referralCode == referralCode) {
+                return res.json(eot({
+                    status: 0,
+                    msg: "Don't send yourself code!"
+                }));
+            }
+        }
+
+        const refer = await User.findOne({ where: { referralCode } });
+        if (refer) {
+            await Affiliate.create({ userId, referId: refer.id, referralCode });
+        } else {
+            return res.json(eot({
+                status: 0,
+                msg: "This is not correct code!"
+            }));
+        }
+
+        return res.json(eot({
+            status: 1,
+            msg: "success"
+        }));
+    } catch (error) {
+        return errorHandler(res, error);
+    }
+};
+
 exports.checkSession = async (req, res) => {
     try {
         const authHeader = req.headers.authorization;

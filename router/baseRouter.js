@@ -57,6 +57,7 @@ router.post("/change_password", authenticate, userController.changeUserPassword)
 //users
 router.post("/profile_save", authenticate, userController.onSaveProfile);
 router.post("/referralCode_save", authenticate, userController.onSaveReferralCode);
+router.post("/send_promoCode", authenticate, userController.onSendPromoCode);
 router.post("/user_deposit_history", authenticate, userController.getUserDepositHistory);
 router.post("/user_withdraw_history", authenticate, userController.getUserWithdrawHistory);
 
