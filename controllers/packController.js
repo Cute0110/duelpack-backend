@@ -78,8 +78,6 @@ exports.getPackItems = async (req, res) => {
                     model: db.pack,
                     as: 'pack',
                 },
-            ],
-            include: [
                 {
                     model: db.item,
                     as: 'item',
@@ -146,11 +144,45 @@ exports.getPackItemsAll = async (req, res) => {
     }
 };
 
+exports.getSideSliderPackItems = async (req, res) => {
+    try {
+        const { count } = dot(req.body);
+
+        const data = await PackItemConnectInfo.findAll({
+            where: {
+                rarity: {
+                    [Op.gt]: 2, // age > 30
+                },
+            },
+            order: db.sequelize.random(), // or Sequelize.literal('RAND()') for MySQL
+            limit: count,
+            include: [
+                {
+                    model: db.pack,
+                    as: 'pack',
+                },
+                {
+                    model: db.item,
+                    as: 'item',
+                },
+            ],
+        });
+
+        return res.json(eot({
+            status: 1,
+            msg: "success",
+            data,
+        }));
+    } catch (error) {
+        return errorHandler(res, error);
+    }
+};
+
 exports.buyItems = async (req, res) => {
     try {
         const { packIds, itemIds, userId, payAmount } = dot(req.body);
 
-        const user = await User.findOne({where: {id: userId}});
+        const user = await User.findOne({ where: { id: userId } });
 
         if (user.balance < payAmount) {
             return errorHandler(res, "Please deposit first!");
@@ -158,26 +190,26 @@ exports.buyItems = async (req, res) => {
         const userPrevBalance = user.balance;
         const userAfterBalance = user.balance - payAmount;
 
-        await User.update({balance: user.balance - payAmount, totalWager: (user.totalWager + payAmount)}, {where: {id: user.id}});
+        await User.update({ balance: user.balance - payAmount, totalWager: (user.totalWager + payAmount) }, { where: { id: user.id } });
 
         let temp = "";
 
-        for (let i = 0 ; i < packIds.length ; i ++ ) {
+        for (let i = 0; i < packIds.length; i++) {
             temp += (packIds[i] + '-' + itemIds[i] + ',');
         }
 
-        await BuyPackHistory.create({userId, packItemIds: temp, userPrevBalance, userAfterBalance})
+        await BuyPackHistory.create({ userId, packItemIds: temp, userPrevBalance, userAfterBalance })
 
         for (let i = 0; i < itemIds.length; i++) {
             await Cart.create({ userId, itemId: itemIds[i] });
         }
 
-        const affiliate = await Affiliate.findOne({ where: {userId}});
+        const affiliate = await Affiliate.findOne({ where: { userId } });
 
         if (affiliate) {
             const refer = await User.findOne({ where: { id: affiliate.referId } });
             const bonusVal = payAmount / config.affiliateBonusPercent;
-            await User.update({totalEarning: refer.totalEarning + bonusVal, unClaimEarning: refer.unClaimEarning + bonusVal}, {where: {id: refer.id}})
+            await User.update({ totalEarning: refer.totalEarning + bonusVal, unClaimEarning: refer.unClaimEarning + bonusVal }, { where: { id: refer.id } })
         }
 
         return res.json(eot({
