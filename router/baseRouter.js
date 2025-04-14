@@ -70,6 +70,8 @@ router.post("/pack_items_list", packController.getPackItems);
 router.post("/pack_items_list_all", packController.getPackItemsAll);
 router.post("/buy_items", authenticate, packController.buyItems);
 
+router.post("/free_pack_list", packController.getAllFreePacks);
+
 router.post("/side_slider_pack_items", packController.getSideSliderPackItems);
 
 //items

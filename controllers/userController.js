@@ -13,6 +13,24 @@ const { eot, dot } = require('../utils/cryptoUtils');
 const Sequelize = require("sequelize");
 const { Op } = require("sequelize");
 
+const getRemainingTimeOrExpired = (oldTime) => {
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    const targetTime = new Date(new Date(oldTime).getTime() + oneDayMs);
+    const now = new Date();
+
+    const diffMs = targetTime - now;
+
+    if (diffMs <= 0) {
+        return 'Spin Now';
+    }
+
+    const hours = String(Math.floor(diffMs / (1000 * 60 * 60)) % 24).padStart(2, '0');
+    const minutes = String(Math.floor(diffMs / (1000 * 60)) % 60).padStart(2, '0');
+    const seconds = String(Math.floor(diffMs / 1000) % 60).padStart(2, '0');
+
+    return `${hours}:${minutes}:${seconds}`;
+}
+
 const generateRandomString = (length = 25) => {
     const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
     let result = "";
@@ -133,7 +151,8 @@ exports.login = async (req, res) => {
             totalEarning: user.totalEarning,
             unClaimEarning: user.unClaimEarning,
             referralCode: user.referralCode,
-            avatarURL: user.avatarURL
+            avatarURL: user.avatarURL,
+            userLastSpinTime: [user.lastFirstPackSpinTime, user.lastSecondPackSpinTime],
         };
 
         const token = jwt.sign({ userId: user.id, userCode: user.userCode }, config.SECRET_KEY, { expiresIn: '1d' });
@@ -197,7 +216,8 @@ exports.google_login = async (req, res) => {
                 totalEarning: newUser.totalEarning,
                 unClaimEarning: newUser.unClaimEarning,
                 referralCode: referralCode,
-                avatarURL: newUser.avatarURL
+                avatarURL: newUser.avatarURL,
+                userLastSpinTime: [newUser.lastFirstPackSpinTime, newUser.lastSecondPackSpinTime],
             };
 
             const token = jwt.sign({ userId: newUser.id, userCode: userCode }, config.SECRET_KEY, { expiresIn: '1d' });
@@ -223,7 +243,8 @@ exports.google_login = async (req, res) => {
                 totalEarning: user.totalEarning,
                 unClaimEarning: user.unClaimEarning,
                 referralCode: user.referralCode,
-                avatarURL: user.avatarURL
+                avatarURL: user.avatarURL,
+                userLastSpinTime: [user.lastFirstPackSpinTime, user.lastSecondPackSpinTime],
             };
 
             const token = jwt.sign({ userId: user.id, userCode: user.userCode }, config.SECRET_KEY, { expiresIn: '1d' });
@@ -536,7 +557,8 @@ exports.checkSession = async (req, res) => {
             totalEarning: user.totalEarning,
             unClaimEarning: user.unClaimEarning,
             referralCode: user.referralCode,
-            avatarURL: user.avatarURL
+            avatarURL: user.avatarURL,
+            userLastSpinTime: [user.lastFirstPackSpinTime, user.lastSecondPackSpinTime],
         };
 
         return res.json(eot({ status: 1, msg: 'Access granted', userData }));

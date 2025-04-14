@@ -71,6 +71,16 @@ module.exports = (sequelize, Sequelize) => {
                 type: Sequelize.BOOLEAN,
                 defaultValue: true,
             },
+            lastFirstPackSpinTime: {
+                type: Sequelize.DATE,
+                allowNull: false, // or false, depending on your requirements
+                defaultValue: Sequelize.NOW, // or Sequelize.NOW if you want it to default to the current time
+            },
+            lastSecondPackSpinTime: {
+                type: Sequelize.DATE,
+                allowNull: false, // or false, depending on your requirements
+                defaultValue: Sequelize.NOW, // or Sequelize.NOW if you want it to default to the current time
+            },
         },
         {
             timestamps: true,

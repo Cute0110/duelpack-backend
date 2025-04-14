@@ -25,7 +25,46 @@ exports.getAllPacks = async (req, res) => {
             };
         }
 
-        query = { ...query, status: true };
+        query = { ...query, type: 1, status: true };
+
+        const data = await Pack.findAndCountAll({
+            where: query,
+            offset: Number(start),
+            limit: length == 0 ? null : Number(length),
+            order: [
+                [order, dir],
+            ],
+        });
+
+        const packItemConnectInfoCount = await PackItemConnectInfo.count();
+
+        return res.json(eot({
+            status: 1,
+            msg: "success",
+            data: data.rows,
+            length: Number(length),
+            start: Number(start),
+            totalCount: data.count,
+            packItemConnectInfoCount: packItemConnectInfoCount
+        }));
+    } catch (error) {
+        return errorHandler(res, error);
+    }
+};
+
+exports.getAllFreePacks = async (req, res) => {
+    try {
+        const { start, length, search, order, dir } = dot(req.body);
+
+        let query = {};
+
+        if (search && search.trim() !== "") {
+            query = {
+                name: { [Op.substring]: search },
+            };
+        }
+
+        query = { ...query, type: {[Op.in]: [2, 3]}, status: true };
 
         const data = await Pack.findAndCountAll({
             where: query,
@@ -178,15 +217,56 @@ exports.getSideSliderPackItems = async (req, res) => {
     }
 };
 
+const getRemainingTimeOrExpired = (oldTime) => {
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    const targetTime = new Date(new Date(oldTime).getTime() + oneDayMs);
+    const now = new Date();
+
+    const diffMs = targetTime - now;
+
+    if (diffMs <= 0) {
+        return 'Spin Now';
+    }
+
+    const hours = String(Math.floor(diffMs / (1000 * 60 * 60)) % 24).padStart(2, '0');
+    const minutes = String(Math.floor(diffMs / (1000 * 60)) % 60).padStart(2, '0');
+    const seconds = String(Math.floor(diffMs / 1000) % 60).padStart(2, '0');
+
+    return `${hours}:${minutes}:${seconds}`;
+}
+
 exports.buyItems = async (req, res) => {
     try {
-        const { packIds, itemIds, userId, payAmount } = dot(req.body);
+        const { packIds, itemIds, userId, payAmount, packType } = dot(req.body);
 
         const user = await User.findOne({ where: { id: userId } });
 
         if (user.balance < payAmount) {
             return errorHandler(res, "Please deposit first!");
         }
+        
+        if (packType == 2) {
+            const remainTime = getRemainingTimeOrExpired(user.lastFirstPackSpinTime);
+            if (remainTime != "Spin Now") {
+                return errorHandler(res, "This is not spin time!");
+            } else {
+                const now = new Date();
+                await User.update({ lastFirstPackSpinTime: now }, { where: { id: user.id } });
+            }
+        } else if (packType == 3) {
+            if (user.totalDeposit == 0) {
+                return errorHandler(res, "You are not allowed to this spin!");
+            } else {
+                const remainTime = getRemainingTimeOrExpired(user.lastSecondPackSpinTime);
+                if (remainTime != "Spin Now") {
+                    return errorHandler(res, "This is not spin time!");
+                }  else {
+                    const now = new Date();
+                    await User.update({ lastSecondPackSpinTime: now }, { where: { id: user.id } });
+                }
+            }
+        }
+
         const userPrevBalance = user.balance;
         const userAfterBalance = user.balance - payAmount;
 
