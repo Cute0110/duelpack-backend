@@ -81,7 +81,10 @@ exports.register = async (req, res) => {
         const referralCode = generateRandomNumber() + newUser.id;
         const userCode = generateRandomString() + newUser.id;
         const userName = "duelpack_" + newUser.id;
-        await User.update({ userCode, userName, referralCode }, { where: { id: newUser.id } })
+
+        const twoDayMs = 48 * 60 * 60 * 1000;
+        const newTime = new Date(new Date().getTime() - twoDayMs);
+        await User.update({ userCode, userName, referralCode, lastFirstPackSpinTime: newTime, lastSecondPackSpinTime: newTime }, { where: { id: newUser.id } })
 
         if (referCode) {
             const refer = await User.findOne({ where: { referralCode: referCode } });
@@ -152,7 +155,7 @@ exports.login = async (req, res) => {
             unClaimEarning: user.unClaimEarning,
             referralCode: user.referralCode,
             avatarURL: user.avatarURL,
-            userLastSpinTime: [user.lastFirstPackSpinTime, user.lastSecondPackSpinTime],
+            freePackSpinRemainTime: [getRemainingTimeOrExpired(user.lastFirstPackSpinTime), getRemainingTimeOrExpired(user.lastSecondPackSpinTime)],
         };
 
         const token = jwt.sign({ userId: user.id, userCode: user.userCode }, config.SECRET_KEY, { expiresIn: '1d' });
@@ -193,7 +196,9 @@ exports.google_login = async (req, res) => {
             const userCode = generateRandomString() + newUser.id;
             const referralCode = generateRandomNumber() + newUser.id;
             const userName = "duelpack_" + newUser.id;
-            await User.update({ userCode, userName, referralCode }, { where: { id: newUser.id } });
+            const twoDayMs = 48 * 60 * 60 * 1000;
+            const newTime = new Date(new Date().getTime() - twoDayMs);
+            await User.update({ userCode, userName, referralCode, lastFirstPackSpinTime: newTime, lastSecondPackSpinTime: newTime }, { where: { id: newUser.id } })
 
             if (referCode) {
                 const refer = await User.findOne({ where: { referralCode: referCode } });
@@ -217,7 +222,7 @@ exports.google_login = async (req, res) => {
                 unClaimEarning: newUser.unClaimEarning,
                 referralCode: referralCode,
                 avatarURL: newUser.avatarURL,
-                userLastSpinTime: [newUser.lastFirstPackSpinTime, newUser.lastSecondPackSpinTime],
+                freePackSpinRemainTime: [getRemainingTimeOrExpired(user.lastFirstPackSpinTime), getRemainingTimeOrExpired(user.lastSecondPackSpinTime)],
             };
 
             const token = jwt.sign({ userId: newUser.id, userCode: userCode }, config.SECRET_KEY, { expiresIn: '1d' });
@@ -244,7 +249,7 @@ exports.google_login = async (req, res) => {
                 unClaimEarning: user.unClaimEarning,
                 referralCode: user.referralCode,
                 avatarURL: user.avatarURL,
-                userLastSpinTime: [user.lastFirstPackSpinTime, user.lastSecondPackSpinTime],
+                freePackSpinRemainTime: [getRemainingTimeOrExpired(user.lastFirstPackSpinTime), getRemainingTimeOrExpired(user.lastSecondPackSpinTime)],
             };
 
             const token = jwt.sign({ userId: user.id, userCode: user.userCode }, config.SECRET_KEY, { expiresIn: '1d' });
@@ -484,7 +489,7 @@ exports.onSendPromoCode = async (req, res) => {
     try {
         const { userId, referralCode } = dot(req.body);
 
-        const affiliate = await Affiliate.findOne({where: {userId}});
+        const affiliate = await Affiliate.findOne({ where: { userId } });
         if (affiliate) {
             return res.json(eot({
                 status: 0,
@@ -492,7 +497,7 @@ exports.onSendPromoCode = async (req, res) => {
             }));
         }
 
-        const user = await User.findOne({where: {id: userId}});
+        const user = await User.findOne({ where: { id: userId } });
         if (user) {
             if (user.referralCode == referralCode) {
                 return res.json(eot({
@@ -558,7 +563,7 @@ exports.checkSession = async (req, res) => {
             unClaimEarning: user.unClaimEarning,
             referralCode: user.referralCode,
             avatarURL: user.avatarURL,
-            userLastSpinTime: [user.lastFirstPackSpinTime, user.lastSecondPackSpinTime],
+            freePackSpinRemainTime: [getRemainingTimeOrExpired(user.lastFirstPackSpinTime), getRemainingTimeOrExpired(user.lastSecondPackSpinTime)],
         };
 
         return res.json(eot({ status: 1, msg: 'Access granted', userData }));
