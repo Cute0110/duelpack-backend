@@ -86,10 +86,22 @@ module.exports = (sequelize, Sequelize) => {
             timestamps: true,
         }
     );
-    
-    // User.associate = (db) => {
-    //     User.belongsTo(db.influencer, { foreignKey: "influencerId", as: "influencer" });
-    // };
+
+    User.associate = (db) => {
+        User.hasMany(db.affiliate, {
+            foreignKey: "userId",
+            as: "affiliates",
+            onDelete: "CASCADE",
+            hooks: true,
+        });
+
+        User.hasMany(db.affiliate, {
+            foreignKey: "referId",
+            as: "referrals",
+            onDelete: "CASCADE",
+            hooks: true,
+        });
+    };
 
     return User;
 };

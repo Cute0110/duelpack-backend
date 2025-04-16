@@ -270,7 +270,7 @@ exports.buyItems = async (req, res) => {
         const userPrevBalance = user.balance;
         const userAfterBalance = user.balance - payAmount;
 
-        await User.update({ balance: user.balance - payAmount, totalWager: (user.totalWager + payAmount) }, { where: { id: user.id } });
+        await User.update({ balance: userAfterBalance, totalWager: (user.totalWager + payAmount) }, { where: { id: user.id } });
 
         let temp = "";
 
@@ -281,15 +281,23 @@ exports.buyItems = async (req, res) => {
         await BuyPackHistory.create({ userId, packItemIds: temp, userPrevBalance, userAfterBalance })
 
         for (let i = 0; i < itemIds.length; i++) {
-            await Cart.create({ userId, itemId: itemIds[i] });
+            if (itemIds[i] != config.halfPackItemId) {
+                await Cart.create({ userId, itemId: itemIds[i] });
+            }
+            else {
+                const pack = await Pack.findOne({where: {id: packIds[i]}});
+                await User.update({ balance: (userAfterBalance + pack.price / 2), totalWager: (user.totalWager + payAmount) }, { where: { id: user.id } });
+            }
         }
 
         const affiliate = await Affiliate.findOne({ where: { userId } });
 
         if (affiliate) {
             const refer = await User.findOne({ where: { id: affiliate.referId } });
-            const bonusVal = payAmount / config.affiliateBonusPercent;
-            await User.update({ totalEarning: refer.totalEarning + bonusVal, unClaimEarning: refer.unClaimEarning + bonusVal }, { where: { id: refer.id } })
+            if (refer) {
+                const bonusVal = payAmount / config.affiliateBonusPercent;
+                await User.update({ totalEarning: refer.totalEarning + bonusVal, unClaimEarning: refer.unClaimEarning + bonusVal }, { where: { id: refer.id } })
+            }
         }
 
         return res.json(eot({

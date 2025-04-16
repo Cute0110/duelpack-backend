@@ -9,12 +9,22 @@ module.exports = (sequelize, Sequelize) => {
             },
             userId: {
                 type: Sequelize.INTEGER,
-                defaultValue: 0,
-            },
-            referId: {
+                allowNull: false,
+                references: {
+                  model: "users", // table name (not the model name)
+                  key: "id",
+                },
+                onDelete: "CASCADE",
+              },
+              referId: {
                 type: Sequelize.INTEGER,
-                defaultValue: 0,
-            },
+                allowNull: true,
+                references: {
+                  model: "users",
+                  key: "id",
+                },
+                onDelete: "CASCADE",
+              },
             referralCode: {
                 type: Sequelize.STRING,
                 defaultValue: "",
@@ -26,8 +36,19 @@ module.exports = (sequelize, Sequelize) => {
     );
 
     Affiliate.associate = (db) => {
-        Affiliate.belongsTo(db.user, { foreignKey: "userId", as: "user" });
-        Affiliate.belongsTo(db.user, { foreignKey: "referId", as: "refer" });
+        Affiliate.belongsTo(db.user, {
+            foreignKey: "userId",
+            as: "user",
+            onDelete: "CASCADE",
+            hooks: true,
+        });
+    
+        Affiliate.belongsTo(db.user, {
+            foreignKey: "referId",
+            as: "refer",
+            onDelete: "CASCADE",
+            hooks: true,
+        });
     };
     
     return Affiliate;
