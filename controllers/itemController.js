@@ -25,7 +25,7 @@ exports.getAllItems = async (req, res) => {
         
         // Add price condition if maxPrice is not zero
         if (maxPrice && maxPrice !== 0) {
-            query.price = { [Op.lt]: maxPrice };
+            query.price = { [Op.lte]: maxPrice };
         }
 
         const data = await Item.findAndCountAll({
