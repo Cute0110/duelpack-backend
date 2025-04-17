@@ -222,7 +222,7 @@ exports.google_login = async (req, res) => {
                 unClaimEarning: newUser.unClaimEarning,
                 referralCode: referralCode,
                 avatarURL: newUser.avatarURL,
-                freePackSpinRemainTime: [getRemainingTimeOrExpired(user.lastFirstPackSpinTime), getRemainingTimeOrExpired(user.lastSecondPackSpinTime)],
+                freePackSpinRemainTime: [getRemainingTimeOrExpired(newUser.lastFirstPackSpinTime), getRemainingTimeOrExpired(newUser.lastSecondPackSpinTime)],
             };
 
             const token = jwt.sign({ userId: newUser.id, userCode: userCode }, config.SECRET_KEY, { expiresIn: '1d' });
