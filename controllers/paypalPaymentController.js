@@ -2,14 +2,10 @@ const Joi = require("joi");
 const db = require("../models");
 const User = db.user;
 const UserBalanceHistory = db.userBalanceHistory;
-const Influencer = db.influencer;
-const { errorHandler, validateSchema } = require("../utils/helper");
-const { createInvoice } = require("../utils/cryptoPayment");
+const { errorHandler } = require("../utils/helper");
 const { eot, dot } = require('../utils/cryptoUtils');
 const config = require('../config/main');
 const jwt = require('jsonwebtoken');
-const { Op, where } = require("sequelize");
-const crypto = require('crypto');
 const { client } = require('../utils/paypalPayment');
 const paypal = require('@paypal/checkout-server-sdk');
 
@@ -98,10 +94,10 @@ exports.captureOrder = async (req, res) => {
         }
     
         const nub = await UserBalanceHistory.findOne({ where: {orderId: orderID}});
-        const newBalance = (nub.userPrevBalance + Number(depositAmount));
+        const newBalance = (user.balance + Number(depositAmount));
     
         await User.update({ balance: newBalance, totalDeposit: (user.totalDeposit + Number(depositAmount)) }, { where: { id: user.id } });
-        await UserBalanceHistory.update({ userAfterBalance: newBalance, receivedAmount: depositAmount, status: "Finished" }, {where: {id: nub.id}});
+        await UserBalanceHistory.update({ userPrevBalance: user.balance, userAfterBalance: newBalance, receivedAmount: Number(depositAmount), status: "Finished" }, {where: {id: nub.id}});
     
         return res.status(200).json(eot({ success: true, data: response, newBalance: newBalance }))
     } else {

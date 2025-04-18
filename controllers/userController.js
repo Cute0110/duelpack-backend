@@ -255,7 +255,6 @@ exports.google_login = async (req, res) => {
             const token = jwt.sign({ userId: user.id, userCode: user.userCode }, config.SECRET_KEY, { expiresIn: '1d' });
             return res.json(eot({ status: 1, msg: "Login success!", token, userData }));
         }
-        return;
     } catch (error) {
         return errorHandler(res, error);
     }
